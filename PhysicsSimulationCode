@@ -1,0 +1,478 @@
+import math
+from tkinter import *
+import tkinter as tk
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import spline
+from decimal import *
+from tkinter import ttk  
+
+
+#Given
+global acceleration
+acceleration = 9.81
+global yInitial
+yInitial = 0.0
+global timeStep
+timeStep = .5
+    
+'''   
+print ("Welcome to the Physics Simulator! Choose which simulation to run:")
+    #print "1. Vertical Launch (No Drag)" 
+    #print "2. Vertical Launch (With Drag)" 
+print ("1. Projectile Motion") 
+print ("2. Projectile Motion (With Drag)") 
+print ("3. Inelastic Collision")
+    
+sim = input("Enter Selection: ")
+    '''
+    #----------------------------------------------------------------------------------
+    
+'''
+    #VERTICAL LAUNCH NO DRAG
+    if(sim == "1")
+    {
+        data[14][3] #row: time vel pos
+        #Initialize first element in each row
+        data[0][0] = timeStep
+        data[0][1] = velocityInitial - acceleration * timeStep
+        data[0][2] = ((pow(data[0][1], 2) - pow(velocityInitial, 2))/(-2 * acceleration)) + yInitial
+        
+        
+        
+        print endl + endl + "DATA WHEN DRAG IS IGNORED" + endl 
+        print "time, velocity, position" 
+        print "0 seconds: " + velocityInitial + " m/s " + yInitial + " m" 
+    
+        #Calculate the velocity and vertical position at each interval
+        for(int i = 1 i < sizeof(data)/sizeof(data[0]) i++)
+        {
+            data[i][0] = timeStep * (i+1)
+            data[i][1] = velocityInitial - acceleration * (timeStep * (i+1))
+            data[i][2] = ((pow(data[i][1], 2) - pow(velocityInitial, 2))/(-2 * acceleration)) + yInitial
+            print data[i-1][0] + " seconds: " + data[i-1][1] + " m/s " + data[i-1][2] + " m" 
+        }
+        
+        print endl + "Time of Flight: " + (2 * velocityInitial)/(acceleration) 
+        print "Max Height: " + (pow(velocityInitial, 2) * pow(sin(M_PI/2), 2))/(2 * acceleration ) + " m" 
+    
+    }'''
+    
+    #----------------------------------------------------------------------------------
+    
+'''
+    #VERTICAL LAUNCH WITH DRAG
+    elif(sim == "2")
+    {
+    
+        #Incorporating Drag (Assume shape is a sphere):
+        
+        
+        Drag = .5 * p * v^2 * Cd * A
+        Drag coefficient: 0.47
+        p: 1.225 kg/m^3
+        v: Will calculate in loop
+        A: pi * radius^2 (in m^2)
+        m: in kg
+        *#*
+        data[14][3] #row: time vel pos
+        dCoefficient = 0.47
+        p = 1.225
+        radius = .1
+        area = M_PI * pow(radius, 2)
+        mass = 5
+        vhat = velocityInitial/abs(velocityInitial)
+        
+        #Calculate drag force (N)
+        drag = .5 * p * pow(velocityInitial, 2) * dCoefficient * area# * vhat
+        #Calculate weight (N)
+        weight = mass * acceleration
+        #Calculate acceleration (m/s^2)
+        newAcceleration = (weight - drag)/mass
+        print newAcceleration
+        
+        #Initialize the first element in each row
+        data[0][0] = timeStep
+        data[0][1] = velocityInitial - newAcceleration * timeStep
+        data[0][2] = ((pow(data[0][1], 2) - pow(velocityInitial, 2))/(-2 * newAcceleration)) + yInitial
+        
+        print endl + endl + "DATA WHEN DRAG IS INCLUDED:" + endl 
+        print "Time, velocity, position" 
+        print "0 seconds: " + velocityInitial + " m/s " + yInitial + " m" 
+    
+        #Calculate the velocity and vertical position at each interval (include drag)
+        for(int i = 1 i < sizeof(data)/sizeof(data[0]) i++)
+        {
+            vhat = data[i-1][1]/abs(data[i-1][1])
+            #Calculate drag force (N)
+            drag = .5 * p * pow(data[i-1][1], 2) * dCoefficient * area * vhat
+            #Calculate weight (N)
+            weight = mass * acceleration
+            #Calculate acceleration (m/s^2)
+            newAcceleration = (weight - drag)/mass*#*
+            
+            data[i][0] = timeStep * (i+1)
+            data[i][1] = velocityInitial - newAcceleration * (timeStep * (i+1))
+            data[i][2] = ((pow(data[i][1], 2) - pow(velocityInitial, 2))/(-2 * newAcceleration)) + yInitial
+            print data[i-1][0] + " seconds: " + data[i-1][1] + " m/s " + data[i-1][2] + " m" 
+        }  
+        
+        print endl + "Time of Flight: " + (2 * velocityInitial)/(newAcceleration) 
+        print "Max Height: " + (pow(velocityInitial, 2) * pow(sin(M_PI/2), 2))/(2 * newAcceleration) + " m" 
+        
+    }  '''
+    
+    #----------------------------------------------------------------------------------
+    
+    
+def noDragSelection():
+    global win
+    win = Toplevel()
+    win.geometry("400x400")
+    win.title("Projectile Motion Configuration")
+    contin = BooleanVar()
+    tk.Label(win, text="Configure the Simulation").pack()
+    global default
+    default = IntVar()
+    tk.Checkbutton(win, text="Use Default Settings", variable=default).pack()
+    tk.Label(win, text="Enter New Angle (Radians)").pack()
+    global angleBox
+    angleBox = Entry(win, width=10, bd=1)
+    angleBox.pack()
+    tk.Label(win, text='Enter New Initial Velocity (m/s)').pack()
+    global vInitBox
+    vInitBox = Entry(win, width=10, bd=1)
+    vInitBox.pack()
+    runButton = tk.Button(win, text='Run Simulation', command=lambda: contin.set(1))
+    runButton.configure(background='#d0dbed')
+    runButton.pack()
+
+    win.wait_variable(contin)
+
+    
+    
+    #PROJECTILE MOTION NO DRAG
+def noDragGUI():
+
+    #data=[14][5] #row: time velX velY posX posY
+    w, h = 5, 14
+    data = [[0 for x in range(w)] for y in range(h)]    
+    angle = math.pi/4
+    velocityInitial = 30.0
+    
+    noDragSelection()
+    
+    if(default.get() == 0):
+        angle = float(angleBox.get())
+        velocityInitial = float(vInitBox.get())
+        
+    win.destroy()
+    
+    velocityInitX = velocityInitial * math.cos(angle)
+    velocityInitY = velocityInitial * math.sin(angle)
+    
+    
+    data[0][0] = 0.0
+    data[0][1] = velocityInitX
+    data[0][2] = velocityInitY
+    data[0][3] = 0.0
+    data[0][4] = 0.0 
+    
+    
+    '''
+    data[0][0] = timeStep
+    data[0][1] = velocityInitX
+    data[0][2] = velocityInitY - (acceleration * timeStep)
+    data[0][3] = data[0][1] * timeStep
+    data[0][4] = (velocityInitY * timeStep) - (.5 * acceleration * pow(timeStep, 2))        
+      '''  
+    #print "Time, X-velocity, Y-velocity, X-position, Y-position" 
+    print("%14s%20s%13s%14s%12s \n" % ("Time", "X-Velocity", "Y-Velocity", "X-Position", "Y-Position"))
+    print("%10.1f seconds:%10.1f m/s%10.1f m/s%10.1fm%10.1f m \n" % (0.0, data[0][1], data[0][2], 0.0, 0.0))
+        
+    treeWin = Toplevel()
+    treeWin.geometry("800x500")
+    treeWin.title("Data")
+    tree = ttk.Treeview(treeWin)
+
+    tree["columns"]=("1","2", "3", "4")
+    tree.column("1", width=100)
+    tree.column("2", width=100)
+    tree.column("3", width=100)
+    tree.column("4", width=100)
+    tree.heading("1", text="X-Velocity (m/s)")
+    tree.heading("2", text="Y-Velocity (m/s)")
+    tree.heading("3", text="X-Position (m)")
+    tree.heading("4", text="Y-Position (m)")
+        
+    for i in range(0, len(data) - 1):
+        data[i+1][0] = timeStep * (i+1)
+        data[i+1][1] = velocityInitX
+        data[i+1][2] = velocityInitY - (acceleration * (timeStep * (i+1)))
+        data[i+1][3] = velocityInitX * timeStep * (i+1)
+        data[i+1][4] = (velocityInitY * timeStep * (i+1)) - (.5 * acceleration * pow(timeStep * (i+1), 2))
+
+        print("%10.1f seconds:%10.1fm/s%10.1f m/s%10.1f m%10.1f m \n" % (data[i+1][0], data[i+1][1], data[i+1][2], data[i+1][3], data[i+1][4]))
+        tree.insert("", i, text=str(data[i][0]) + " seconds", values=(round(data[i][1], 2), round(data[i][2], 2), round(data[i][3], 2), round(data[i][4], 2)))
+    
+    tree.pack()
+    maxHeight = (pow(velocityInitial, 2) * pow(math.sin(angle), 2))/(2 * acceleration)
+    distance = (pow(velocityInitial, 2) * math.sin(2 * angle)) / (acceleration)
+    print ("\nTime of Flight: " + str((2 * velocityInitial * math.sin(angle))/(acceleration))) 
+    print ("Max Height: " + str(maxHeight)) 
+    print ("Horizontal Distance: " + str(distance))
+    
+    zippedData = list(zip(*data))
+    
+    plt.subplot(121)
+    x = np.array(zippedData[3])
+    y = np.array(zippedData[4])
+    xSmooth = np.linspace(x.min(), x.max(), 300)
+    ySmooth = spline(x, y, xSmooth)
+    plt.plot(xSmooth, ySmooth)
+    
+    axes = plt.gca()
+    axes.set_xlim([0,120])
+    axes.set_ylim([0,60])
+    plt.xlabel('X-Position (m)')
+    plt.ylabel('Y-Position (m)')
+    plt.title('Y-Position vs. X-Position')
+    plt.show()
+    
+    plt.subplot(122)
+    x = np.array(zippedData[0])
+    y = np.array(zippedData[2])
+    xSmooth = np.linspace(x.min(), x.max(), 300)
+    ySmooth = spline(x, y, xSmooth)
+    plt.plot(xSmooth, ySmooth)
+
+    axes = plt.gca()
+    axes.set_xlim([0,10])
+    axes.set_ylim([-60,60])
+    plt.xlabel('Time (s)')
+    plt.ylabel('Y-Position (m)')
+    plt.title('Y-Velocity vs. Time')
+    plt.show()
+    
+#----------------------------------------------------------------------------------
+    
+    
+def dragSelection():
+    global win
+    win = Toplevel()
+    win.geometry("400x400")
+    win.title("Projectile Motion Configuration")
+    contin = BooleanVar()
+    tk.Label(win, text="Configure the Simulation").pack()
+    global default
+    default = IntVar()
+    tk.Checkbutton(win, text="Use Default Settings", variable=default).pack()
+    tk.Label(win, text="Enter New Initial X-Velocity (m/s)").pack()
+    global xVelBox
+    xVelBox = Entry(win, width=10, bd=1)
+    xVelBox.pack()
+    tk.Label(win, text='Enter New Initial Y-Velocity (m/s)').pack()
+    global yVelBox
+    yVelBox = Entry(win, width=10, bd=1)
+    yVelBox.pack()
+    tk.Label(win, text="Enter New Mass (kg)").pack()
+    global massBox
+    massBox = Entry(win, width=10, bd=1)
+    massBox.pack()
+    tk.Label(win, text="Enter New Radius (m)").pack()
+    global radiusBox
+    radiusBox = Entry(win, width=10, bd=1)
+    radiusBox.pack()
+    runButton = tk.Button(win, text='Run Simulation', command=lambda: contin.set(1)) 
+    runButton.configure(background='#d0dbed')
+    runButton.pack()
+    
+    win.wait_variable(contin)
+    
+def dragGUI():
+
+    w, h = 5, 20
+    data = [[0 for x in range(w)] for y in range(h)] #row: time velX velY posX posY
+  
+    data[0][0] = 0.0
+        
+    data[0][1] = 21.21 #m/s
+
+    data[0][2] = 21.21 #m/s
+        
+    data[0][3] = 0.0 #meters
+        
+    data[0][4] = 0.0 #meters
+        
+    mass = 10.0 #kg
+    dCoefficient = 0.47
+    p = 1.225
+    radius = .1
+    
+    
+    dragSelection()
+    
+    if(default.get() == 0):
+        data[0][1] = float(xVelBox.get())
+        data[0][2] = float(yVelBox.get())
+        mass = float(massBox.get())
+        radius = float(radiusBox.get())
+        
+    win.destroy()
+        
+        
+    w = -1 * mass * 9.81 #Newtons
+        
+    
+    area = math.pi * pow(radius, 2)
+
+    spd2 = 0
+    theta = 0
+    drag = 0
+    forceX = 0
+    forceY = 0
+    accelerationX = 0
+    accelerationY = 0
+        
+    #print "Time, X-velocity, Y-velocity, X-position, Y-position" 
+    print("%14s %20s %13s %14s %12s \n" % ("Time", "X-Velocity", "Y-Velocity", "X-Position", "Y-Position"))
+
+    #print "0 seconds: " + data[0][1] + " m/s " + data[0][2] + " m/s " + "0 m " + "0 m" 
+        
+    #print("%10.1f seconds: %10.1f m/s %10.1f m/s %10.1f m %10.1f m \n" % (0.0, data[0][1], data[0][2], data[0][3], data[0][4]))
+        
+    treeWin = Toplevel()
+    treeWin.geometry("800x500")
+    treeWin.title("Data")
+    tree = ttk.Treeview(treeWin)
+
+    tree["columns"]=("1","2", "3", "4")
+    tree.column("1", width=100)
+    tree.column("2", width=100)
+    tree.column("3", width=100)
+    tree.column("4", width=100)
+    tree.heading("1", text="X-Velocity (m/s)")
+    tree.heading("2", text="Y-Velocity (m/s)")
+    tree.heading("3", text="X-Position (m)")
+    tree.heading("4", text="Y-Position (m)")
+    
+        
+        
+    for i in range(0, len(data) - 1):
+    
+        spd2 = pow(data[i][1], 2) + pow(data[i][2], 2)
+
+        #theta = atan(data[i][2]/data[i][1])
+        theta = math.atan2(data[i][2], data[i][1])
+            
+        drag = .5 * dCoefficient * p * area * spd2
+            
+        forceX = -1 * drag * math.cos(theta)
+            
+        forceY = w - (drag * math.sin(theta))
+
+        accelerationX = forceX/mass
+            
+        accelerationY = forceY/mass
+
+        data[i+1][0] = timeStep * (i+1)
+            
+        #vx(i+1) = vx(i) + ax * delta t
+        data[i+1][1] = data[i][1] + accelerationX * timeStep
+        #if(np.sign(data[i+1][1]) == -1 and abs(data[i+1][1]) < 0.000001):
+        #    data[i+1][1] = 0
+            
+        #vy(i+1) = vy(i) + ay * delta t
+        data[i+1][2] = data[i][2] + accelerationY * timeStep
+        #if(signbit(data[i+1][2]) == True and abs(data[i+1][2]) < 0.000001):
+        #    data[i+1][2] = 0
+                
+        #x(i+1) = x(i) + vx(i) * delta t
+        data[i+1][3] = data[i][3] + data[i][1] * timeStep
+        #if(signbit(data[i+1][3]) == True and abs(data[i+1][3]) < 0.000001):
+        #    data[i+1][3] = 0
+                
+        #y(i+1) = y(i) + vy(i) * delta t
+        data[i+1][4] = data[i][4] + (data[i][2] * timeStep) + (.5 * accelerationY * timeStep * timeStep)
+        #if(signbit(data[i+1][4]) == True and abs(data[i+1][4]) < 0.000001):
+        #    data[i+1][4] = 0
+                
+        #print data[i+1][0] + " seconds:   " + data[i+1][1] + " m/s   " + data[i+1][2] + " m/s   " + data[i+1][3] + " m   " + data[i+1][4] + " m " 
+        print("%10.1f seconds: %10.1f m/s %10.1f m/s %10.1f m %10.1f m \n" % (data[i][0], data[i][1], data[i][2], data[i][3], data[i][4]))
+        tree.insert("", i, text=str(data[i][0]) + " seconds", values=(round(data[i][1], 2), round(data[i][2], 2), round(data[i][3], 2), round(data[i][4], 2)))
+    
+    tree.pack()
+
+    zippedData = list(zip(*data))
+    
+    plt.figure(1)
+    x = np.array(zippedData[3])
+    y = np.array(zippedData[4])
+    xSmooth = np.linspace(x.min(), x.max(), 300)
+    ySmooth = spline(x, y, xSmooth)
+    plt.plot(xSmooth, ySmooth)
+    
+    axes = plt.gca()
+    axes.set_xlim([0,120])
+    axes.set_ylim([0,60])
+    plt.xlabel('X-Position (m)')
+    plt.ylabel('Y-Position (m)')
+    plt.title('Y-Position vs. X-Position')
+    plt.show()
+    
+    plt.figure(2)
+    x = np.array(zippedData[0])
+    y = np.array(zippedData[2])
+    xSmooth = np.linspace(x.min(), x.max(), 300)
+    ySmooth = spline(x, y, xSmooth)
+    plt.plot(xSmooth, ySmooth)
+
+    axes = plt.gca()
+    axes.set_xlim([0,10])
+    axes.set_ylim([-60,60])
+    plt.xlabel('Time (s)')
+    plt.ylabel('Y-Position (m)')
+    plt.title('Y-Velocity vs. Time')
+    plt.show()
+    
+#----------------------------------------------------------------------------------
+    
+#INELASTIC COLLISION
+def inelasticColGUI():
+
+    #Inelastic collision between two objects (obj 1 hits obj 2, which is stationary)
+    m1 = 45.0
+    m2 = 20.0
+    v1 = 29
+    v2 = 0.0
+    getcontext().prec = 2
+    vFinal = ((m1 * v1) + (m2 * v2))/(m1 + m2) # Final velocity of Obj 2
+    pInit = m1 * v1 #Momentum of Obj 1
+    pFinal = m2 * vFinal #Momentum of Obj 2
+    kEnergyInit = .5 * m1 * pow(v1, 2) #KE of Obj 1
+    kEnergyFinal = .5 * (m1 + m2) * pow(vFinal, 2) #KE of Obj 2
+    print ("Final Velocity (Object 1): " + str(vFinal) + " m/s")
+    print ("Initial Momentum of Object 1: " + str(pInit) + " kgm/s")
+    print ("Final Momentum of Object 2: " + str(pInit) + " kgm/s  (momentum is conserved)") 
+    print ("Initial Kinetic Energy of Object 1: " + str(kEnergyInit) + " J") 
+    print ("Final Kinetic Energy of Object 2: " + str(kEnergyFinal) + " J")
+
+      
+
+global top
+top = tk.Tk()
+top.title("Physics Simulator")
+top.geometry('600x400')
+
+top.configure(background='#d0dbed')
+
+tk.Label(top, text="Select the simulation to run: ", anchor="center", pady=10).pack()
+
+b1 = tk.Button(top, width = 25, text ="Projectile Motion (No Drag)", command = lambda: noDragGUI()).pack()
+b2 = tk.Button(top, width = 25, text ="Projectile Motion (Drag)", command = lambda: dragGUI()).pack()
+b3 = tk.Button(top, width = 25, text ="Inelastic Collision", command = lambda: inelasticColGUI()).pack()
+
+
+
+top.mainloop()
+
